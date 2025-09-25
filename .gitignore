@@ -1,0 +1,62 @@
+# Compiled object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executable files
+*.out
+*.app
+*.elf
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+
+# Build directories
+build/
+Build/
+Debug/
+debug/
+Release/
+release/
+output/
+Output/
+bin/
+Bin/
+obj/
+Obj/
+Objects/
+DebugConfig/
+Listings/
+
+
+# Other
+ProgramLogs.txt
+Project.uvguix.*
+*.swp
+*~
+*.user
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# OneDrive temporary files
+~$*
