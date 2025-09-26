@@ -64,6 +64,14 @@ uint8_t Combat_Length =0;  // record the combat_readiness length
 uint8_t Right_Tag = 1; // confirm right or not
 
 
+void Show_Time_Bar(void){
+	/*
+	128 / GAME_LASTING_TIME * Game_Time
+	*/
+	OLED_DrawRectangle(0, 60, 128 / GAME_LASTING_TIME * Game_Time, 4, OLED_FILLED);
+}
+
+
 void Game_Page_Ready(void){
 	// The game function
 	
@@ -165,7 +173,7 @@ void Game_Page_Ready(void){
 	// OLED_Printf(40, 50, OLED_6X8, "%d", Combat_Length);
 	// OLED_Printf(60, 50, OLED_6X8, "%d", Finished_Pointer);
 	OLED_Printf(40, 50, OLED_6X8, "%d", Game_Time);
-	
+	Show_Time_Bar();
 	
 	if(Game_Time < 0){ // have time to play
 		status = HOME_PAGE;
