@@ -41,7 +41,8 @@ void Data_init(void){
 
 
 void Home_Page(void){
-	OLED_Printf(0, 0, OLED_8X16, "This is home_page");
+	OLED_Printf(0, 0, OLED_6X8, "Look familiar?");
+	OLED_Printf(0, 10, OLED_6X8, "You!could!be!next!");
 	
 	if(Button_any_close()){
 		status = GAME_PAGE;
@@ -56,11 +57,12 @@ void Menu_Page(void){
 
 
 uint8_t Game_Ready = 0; // sure to play game?
-int Score = -1;  // first in and become 0
+int Score = 0;  // first in and become 0
 int Game_Time = GAME_LASTING_TIME; // leaving time
-int Rand_Num; // use to choose the combat_readiness randomly
+int Rand_Num = 0; // give a new num; give the 500kg first
+	
 uint8_t Finished_Pointer = 0; // use to know the input pointer
-uint8_t Combat_Length =0;  // record the combat_readiness length
+uint8_t Combat_Length = 5;  // record the combat_readiness length and not equal to Finished_Pointer
 uint8_t Right_Tag = 1; // confirm right or not
 
 
@@ -69,6 +71,32 @@ void Show_Time_Bar(void){
 	128 / GAME_LASTING_TIME * Game_Time
 	*/
 	OLED_DrawRectangle(0, 60, 128 / GAME_LASTING_TIME * Game_Time, 4, OLED_FILLED);
+}
+
+
+void Score_Page(int Score){
+	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!", Score);
+	OLED_Printf(35, 20, OLED_8X16, "score: %d", Score);
+	
+	OLED_ShowString(0, 45, "back", OLED_8X16);
+	OLED_ReverseArea(0, 45, 32, 61);
+	OLED_ShowString(85, 45, "again", OLED_8X16);
+	OLED_ReverseArea(85, 45, 127, 61);
+	OLED_Update();
+	
+	while(1){
+		if(Key_check(GPIOA, GPIO_Pin_2) == 1){
+			status = HOME_PAGE;
+			OLED_Clear();
+			break;
+		}
+		//confirm, back to delete_page and delete the data
+		if(Key_check(GPIOA, GPIO_Pin_3) == 1){
+			status = GAME_PAGE;
+			OLED_Clear();
+			break;
+		}
+	}
 }
 
 
@@ -84,6 +112,7 @@ void Game_Page_Ready(void){
 		
 	}
 	*/
+	
 	if(Key_check(GPIOA, GPIO_Pin_2)){
 	// press A
 		if(combat_readiness[Rand_Num].arrow[Finished_Pointer] == 'A'){ // press right
@@ -176,12 +205,14 @@ void Game_Page_Ready(void){
 	Show_Time_Bar();
 	
 	if(Game_Time < 0){ // have time to play
-		status = HOME_PAGE;
 		Game_Ready = 0;
-		Score = 0;
+		
 		OLED_Clear();
 		TIM_Cmd(TIM2,DISABLE);
 		Game_Time = GAME_LASTING_TIME;
+		
+		Score_Page(Score);
+		Score = 0;
 	}
 }
 
@@ -189,6 +220,8 @@ void Game_Page_Ready(void){
 void Game_Page_nReady(void){
 	// The game confirm function 
 	OLED_Printf(0, 0, OLED_8X16, "Game Ready?");
+	OLED_Printf(0, 20, OLED_8X16, "Join the");
+	OLED_Printf(0, 40, OLED_8X16, "Helldivers!");
 	
 	if(Key_check(GPIOA, GPIO_Pin_3)){
 		status = GAME_PAGE;
