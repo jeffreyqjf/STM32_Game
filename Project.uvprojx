@@ -725,6 +725,16 @@
               <FileType>5</FileType>
               <FilePath>.\Module\OLED_Data.h</FilePath>
             </File>
+            <File>
+              <FileName>Timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Module\Timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Module\Timer.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

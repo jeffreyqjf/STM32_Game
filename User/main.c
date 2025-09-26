@@ -3,14 +3,17 @@
 #include "GPIO_init.h"
 #include "OLED.h"
 #include "Key.h"
-#include <stdlib.h>
+#include "Timer.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 #define HOME_PAGE  ((uint16_t)1)
 #define MENU_PAGE  ((uint16_t)2)
 #define GAME_PAGE  ((uint16_t)3)
 #define COMBAT_STRUCT_LEN ((int)11)
+	
+#define GAME_LASTING_TIME ((uint16_t)15)
 
 typedef struct {
 	char name[32];
@@ -36,6 +39,7 @@ void Data_init(void){
 	strcpy(combat_readiness[11].name, "Eagle Cluster Bomb");strcpy(combat_readiness[11].arrow, "WDSSD\0");
 }
 
+
 void Home_Page(void){
 	OLED_Printf(0, 0, OLED_8X16, "This is home_page");
 	
@@ -52,8 +56,8 @@ void Menu_Page(void){
 
 
 uint8_t Game_Ready = 0; // sure to play game?
-uint16_t Score = 0; 
-int Game_Time = 30; // leaving time
+int Score = -1;  // first in and become 0
+int Game_Time = GAME_LASTING_TIME; // leaving time
 int Rand_Num; // use to choose the combat_readiness randomly
 uint8_t Finished_Pointer = 0; // use to know the input pointer
 uint8_t Combat_Length =0;  // record the combat_readiness length
@@ -63,12 +67,9 @@ uint8_t Right_Tag = 1; // confirm right or not
 void Game_Page_Ready(void){
 	// The game function
 	
-	if(Game_Time < 0){ // have time to play
-		status = HOME_PAGE;
-		Game_Ready = 0;
-		Score = 0;
-		OLED_Clear();
-	}
+	TIM_Cmd(TIM2,ENABLE); // begin to record time
+	
+	
 	/*
 	if(Right_Tag == 1){ // finish and give a new combat_readiness
 		// add score
@@ -113,7 +114,7 @@ void Game_Page_Ready(void){
 		Rand_Num = rand() % COMBAT_STRUCT_LEN; // give a new num
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
-		Game_Time += 2; // give more time
+		Game_Time += 1; // give more time
 		// Right_Tag = 0; // begin
 	}
 	
@@ -163,7 +164,17 @@ void Game_Page_Ready(void){
 	OLED_Printf(20, 50, OLED_6X8, "%d", Score);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", Combat_Length);
 	// OLED_Printf(60, 50, OLED_6X8, "%d", Finished_Pointer);
+	OLED_Printf(40, 50, OLED_6X8, "%d", Game_Time);
 	
+	
+	if(Game_Time < 0){ // have time to play
+		status = HOME_PAGE;
+		Game_Ready = 0;
+		Score = 0;
+		OLED_Clear();
+		TIM_Cmd(TIM2,DISABLE);
+		Game_Time = GAME_LASTING_TIME;
+	}
 }
 
 
@@ -201,6 +212,7 @@ int main(void)
 	OLED_Init();
 	Key_init();
 	Data_init();
+	Timer_init();
 	
 	while(1){
 		switch(status){
@@ -222,3 +234,12 @@ int main(void)
 	}
 }
 
+
+
+
+void TIM2_IRQHandler(void){
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET){
+		Game_Time -= 1;
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	}
+}
