@@ -91,9 +91,9 @@ void Show_Time_Bar(void){
 }
 
 
-void Score_Page(int Score){
+void Score_Page(double Score){
 	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!");
-	OLED_Printf(35, 20, OLED_8X16, "score: %lf", Score);
+	OLED_Printf(25, 20, OLED_8X16, "score: %0.1lf", Score);
 	
 	OLED_ShowString(0, 45, "back", OLED_8X16);
 	OLED_ReverseArea(0, 45, 32, 61);
@@ -140,13 +140,13 @@ void next_level_page(uint8_t All_Right, double Game_Time, uint8_t * level, doubl
 				Add_Score = 3.0 * (double)(*level);
 				Addition_Score += Add_Score; 
 			}
-			OLED_Printf(0, 15, OLED_6X8, "All Right: %lf", Add_Score);
+			OLED_Printf(0, 15, OLED_6X8, "All Right: %0.1lf", Add_Score);
 		}
 		
 		if(next_level_page_remain_time <= 2){
 				double Add_Score = (double)Game_Time * 1.0; 
 				Addition_Score += Add_Score;
-				OLED_Printf(0, 30, OLED_6X8, "Game Time: %lf", Add_Score);
+				OLED_Printf(0, 30, OLED_6X8, "Game Time: %0.1lf", Add_Score);
 		}
 		OLED_Printf(45, 45, OLED_8X16, "%d", next_level_page_remain_time);
 		OLED_Update();
@@ -221,7 +221,7 @@ void one_level(uint8_t * level){
 	OLED_Clear(); // in order to show clean screen
 	OLED_Printf(0, 0, OLED_6X8, combat_readiness[Rand_Num].name); // show the combat_readiness's name
 	
-	for(int i = 0; i < Finished_Pointer; i++){ //show the right arrow
+	for(int i = 0; i < Finished_Pointer - 1; i++){ //show the right arrow
 		switch(combat_readiness[Rand_Num].arrow[i]){
 			case 'W':
 				OLED_ShowImage(i * 16, 30, 16, 16, W_filled);
@@ -239,6 +239,26 @@ void one_level(uint8_t * level){
 				break;
 		}
 	}
+	
+	// the for is not usable, should change 
+	for(int i = 0; i <= 4; i++){
+		switch(combat_readiness[Rand_Num].arrow[Finished_Pointer - 1]){
+				case 'W':
+					OLED_ShowImage((Finished_Pointer - 1) * 16, 30 - i, 16, 16, W_filled);
+					break;
+				case 'S':
+					OLED_ShowImage((Finished_Pointer - 1) * 16, 30 - i, 16, 16, S_filled);
+					break;
+				case 'A':
+					OLED_ShowImage((Finished_Pointer - 1) * 16, 30 - i, 16, 16, A_filled);
+					break;
+				case 'D':
+					OLED_ShowImage((Finished_Pointer - 1)* 16, 30 - i, 16, 16, D_filled);
+					break;
+				default:
+					break;
+			}
+		}
 	
 	for(int i = Finished_Pointer; i < Combat_Length; i++){
 		switch(combat_readiness[Rand_Num].arrow[i]){
@@ -259,7 +279,7 @@ void one_level(uint8_t * level){
 		}
 	}
 	// OLED_Printf(0, 50, OLED_6X8, "%d", Rand_Num);
-	OLED_Printf(0, 50, OLED_6X8, "score: %lf", Score);
+	OLED_Printf(0, 50, OLED_6X8, "score: %0.1lf", Score);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", Combat_Length);
 	// OLED_Printf(60, 50, OLED_6X8, "%d", Finished_Pointer);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", next_level_page_remain_time);
