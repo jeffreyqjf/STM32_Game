@@ -12,7 +12,7 @@
 #define MENU_PAGE  ((uint16_t)2)
 #define GAME_PAGE  ((uint16_t)3)
 #define COMBAT_STRUCT_LEN ((int)11)
-#define GAME_LASTING_TIME ((uint16_t)15)
+#define GAME_LASTING_TIME ((double)15.0)
 #define LEVEL_PAGE_REMAIN_TIME ((int)5)
 
 typedef struct {
@@ -57,11 +57,11 @@ void Menu_Page(void){
 
 
 uint8_t Game_Ready = 0; // sure to play game?
-int Score = 0;  // first in and become 0
-int Game_Time = GAME_LASTING_TIME; // leaving time
+double Score = 0.0;  // first in and become 0
+double Game_Time = GAME_LASTING_TIME; // leaving time
 int Rand_Num = 0; // give a new num; give the 500kg first
-
 uint8_t Finished_Pointer = 0; // use to know the input pointer
+
 uint8_t Combat_Length = 5;  // record the combat_readiness length and not equal to Finished_Pointer
 
 uint8_t Count_Fininshed_Combat = 0;
@@ -69,17 +69,31 @@ uint8_t Count_Next_Level_Combat = 4;
 uint8_t All_Right = 1;
 uint8_t level = 1;
 
+
+void Game_Para_Init(void){
+	// when first play game, the parameter that should init
+	Score = 0.0;
+	Game_Time = GAME_LASTING_TIME;
+	Rand_Num = rand() % COMBAT_STRUCT_LEN; // give a new num
+	Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
+	Finished_Pointer = 0; 
+	Count_Fininshed_Combat = 0;
+	All_Right = 1;
+	level = 1;
+}
+
+
 void Show_Time_Bar(void){
 	/*
-	128 / GAME_LASTING_TIME * Game_Time
+	128 / GAME_LASTING_TIME * Game_Timeq
 	*/
-	OLED_DrawRectangle(0, 60, 128 / GAME_LASTING_TIME * Game_Time, 4, OLED_FILLED);
+	OLED_DrawRectangle(0, 60, (uint8_t)(128.0 / GAME_LASTING_TIME * Game_Time), 4, OLED_FILLED);
 }
 
 
 void Score_Page(int Score){
-	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!", Score);
-	OLED_Printf(35, 20, OLED_8X16, "score: %d", Score);
+	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!");
+	OLED_Printf(35, 20, OLED_8X16, "score: %lf", Score);
 	
 	OLED_ShowString(0, 45, "back", OLED_8X16);
 	OLED_ReverseArea(0, 45, 32, 61);
@@ -105,59 +119,65 @@ void Score_Page(int Score){
 
 int next_level_page_remain_time = LEVEL_PAGE_REMAIN_TIME; // remain 5s
 
-void next_level_page(uint8_t All_Right, int Game_Time, uint8_t * level, int * Score){
+void next_level_page(uint8_t All_Right, double Game_Time, uint8_t * level, double * Score){
+	// the page use to remind user to play next level
 	
 	TIM_Cmd(TIM3, ENABLE);
 	
-	int Addition_Score = 0;
+	double Addition_Score = 0.0;
+	
 	while(next_level_page_remain_time > 0){
-		Addition_Score = 0;
+		
+		Addition_Score = 0.0;
+		
 		if(next_level_page_remain_time <= 4){
 			OLED_Printf(0, 0, OLED_6X8, "level %d finished!", *level);
 		}
 		
 		if(next_level_page_remain_time <= 3){
-			int Add_Score = 0;
+			double Add_Score = 0.0;
 			if(All_Right == 1){
-				Add_Score = 3 * (*level);
+				Add_Score = 3.0 * (double)(*level);
 				Addition_Score += Add_Score; 
 			}
-			OLED_Printf(0, 15, OLED_6X8, "All Right: %d", Add_Score);
+			OLED_Printf(0, 15, OLED_6X8, "All Right: %lf", Add_Score);
 		}
 		
 		if(next_level_page_remain_time <= 2){
-				int Add_Score = Game_Time * 1; 
+				double Add_Score = (double)Game_Time * 1.0; 
 				Addition_Score += Add_Score;
-				OLED_Printf(0, 30, OLED_6X8, "Game Time: %d", Add_Score);
+				OLED_Printf(0, 30, OLED_6X8, "Game Time: %lf", Add_Score);
 		}
 		OLED_Printf(45, 45, OLED_8X16, "%d", next_level_page_remain_time);
 		OLED_Update();
 	}
 	
-	// finish and to next level
 	TIM_Cmd(TIM3, DISABLE);
 	
+	// finish and to next level
 	*Score += Addition_Score;
 	*level += 1;
-	// in next level should init next_level_page_remain_time
+	
+	// in next level should init:next_level_page_remain_time, All_Right, other had init when go into this function
 	next_level_page_remain_time = LEVEL_PAGE_REMAIN_TIME;
 	All_Right = 1;
-
 }
 
 
 void one_level(uint8_t * level){
+	// main game
+	
 	TIM_Cmd(TIM2, ENABLE); // begin to record time
 	
 	// next combat_readiness
 	if(Finished_Pointer == Combat_Length){ // all is right
-		Score += 1; // simple, should improve!!
+		Score += 1.0; // simple, should improve!!
 		Rand_Num = rand() % COMBAT_STRUCT_LEN; // give a new num
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
 		Count_Fininshed_Combat += 1; 
-		// Game_Time += 1; // give more time
-		Delay_us(500);
+		Game_Time += 0.2; // give more time
+		Delay_us(500); // show last arrow is filled
 	}
 	
 	if(Key_check(GPIOA, GPIO_Pin_2)){
@@ -239,35 +259,32 @@ void one_level(uint8_t * level){
 		}
 	}
 	// OLED_Printf(0, 50, OLED_6X8, "%d", Rand_Num);
-	OLED_Printf(0, 50, OLED_6X8, "score: %d", Score);
+	OLED_Printf(0, 50, OLED_6X8, "score: %lf", Score);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", Combat_Length);
 	// OLED_Printf(60, 50, OLED_6X8, "%d", Finished_Pointer);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", next_level_page_remain_time);
 	Show_Time_Bar();
 	
 	// game over
-	if(Game_Time < 0){ // have time to play
+	if(Game_Time < 0.0){ // have time to play
 		Game_Ready = 0;
 		
 		OLED_Clear();
 		TIM_Cmd(TIM2,DISABLE);
 		
-		Game_Time = GAME_LASTING_TIME;
-		Rand_Num = rand() % COMBAT_STRUCT_LEN;  // to init the next game
-		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
-		Finished_Pointer = 0;
-		Count_Fininshed_Combat = 0;
-		*level = 1;
 		Score_Page(Score);
-		Score = 0;
+		Game_Para_Init();
+
 	}
 	
 	// next level
 	if(Count_Fininshed_Combat >= Count_Next_Level_Combat + *level){
+		
 		OLED_Clear();
+		
 		TIM_Cmd(TIM2,DISABLE);
 		
-		int Game_Time_tmp = Game_Time;
+		double Game_Time_tmp = Game_Time;
 		Game_Time = GAME_LASTING_TIME;
 		Rand_Num = rand() % COMBAT_STRUCT_LEN;  // to init the next game
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
@@ -295,14 +312,14 @@ void Game_Page_nReady(void){
 	if(Key_check(GPIOA, GPIO_Pin_3)){
 		status = GAME_PAGE;
 		Game_Ready = 1;
-		Score = 0;
+		Game_Para_Init();
 		OLED_Clear();
 	}
 	
 	if(Key_check(GPIOA, GPIO_Pin_2)){
 		status = HOME_PAGE;
 		Game_Ready = 0;
-		Score = 0;
+		Game_Para_Init();
 		OLED_Clear();
 	}
 }
@@ -347,7 +364,7 @@ int main(void)
 
 void TIM2_IRQHandler(void){
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET){
-		Game_Time -= 1;
+		Game_Time -= 1.0;
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 	}
 }
