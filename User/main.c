@@ -63,8 +63,12 @@ int Rand_Num = 0; // give a new num; give the 500kg first
 	
 uint8_t Finished_Pointer = 0; // use to know the input pointer
 uint8_t Combat_Length = 5;  // record the combat_readiness length and not equal to Finished_Pointer
-uint8_t Right_Tag = 1; // confirm right or not
 
+
+uint8_t Count_Fininshed_Combat = 0;
+uint8_t Count_Next_Level_Combat = 7;
+uint8_t All_Right = 1;
+uint8_t level = 1;
 
 void Show_Time_Bar(void){
 	/*
@@ -90,7 +94,7 @@ void Score_Page(int Score){
 			OLED_Clear();
 			break;
 		}
-		//confirm, back to delete_page and delete the data
+		
 		if(Key_check(GPIOA, GPIO_Pin_3) == 1){
 			status = GAME_PAGE;
 			OLED_Clear();
@@ -100,17 +104,56 @@ void Score_Page(int Score){
 }
 
 
-void Game_Page_Ready(void){
-	// The game function
+int next_level_page_remain_time = 5; // remain 3s
+
+void next_level_page(uint8_t All_Right, int Game_Time, uint8_t * level, int * Score){
+	TIM_Cmd(TIM3, ENABLE);
 	
-	TIM_Cmd(TIM2,ENABLE); // begin to record time
+	int Addition_Score = 0;
+	while(next_level_page_remain_time > 0){
+		Addition_Score = 0;
+		if(next_level_page_remain_time <= 4){
+			OLED_Printf(0, 0, OLED_6X8, "level %d finished!");
+		}
+		
+		if(next_level_page_remain_time <= 3){
+			int Add_Score = 0;
+			if(All_Right == 1){
+				Add_Score = 3 * (int)level;
+				Addition_Score += Add_Score; 
+			}
+			OLED_Printf(0, 15, OLED_6X8, "All Right: %d", Add_Score);
+		}
+		
+		if(next_level_page_remain_time <= 2){
+				int Add_Score = Game_Time * 1; 
+				Addition_Score += Add_Score;
+				OLED_Printf(0, 30, OLED_6X8, "Game Time: %d", Add_Score);
+		}
+		OLED_Printf(45, 45, OLED_8X16, "%d", next_level_page_remain_time);
+		OLED_Update();
+	}
 	
+	// finish and to next level
+	TIM_Cmd(TIM3, DISABLE);
 	
+	next_level_page_remain_time = 5;
+	*Score += Addition_Score;
+	*level += 1;
+	
+}
+
+
+void one_level(uint8_t level){
+	TIM_Cmd(TIM2, ENABLE); // begin to record time
+	
+	// next combat_readiness
 	if(Finished_Pointer == Combat_Length){ // all is right
 		Score += 1; // simple, should improve!!
 		Rand_Num = rand() % COMBAT_STRUCT_LEN; // give a new num
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
+		Count_Fininshed_Combat += 1; 
 		Game_Time += 1; // give more time
 		// Right_Tag = 0; // begin
 		Delay_us(200);
@@ -122,6 +165,7 @@ void Game_Page_Ready(void){
 			Finished_Pointer += 1; // next arrow
 		}else{ // not right and back to first arrow
 			Finished_Pointer = 0;
+			All_Right = 0;
 		}
 	}
 	if(Key_check(GPIOA, GPIO_Pin_3)){
@@ -130,6 +174,7 @@ void Game_Page_Ready(void){
 			Finished_Pointer += 1; // next arrow
 		}else{
 			Finished_Pointer = 0;
+			All_Right = 0;
 		}
 	}
 	if(Key_check(GPIOA, GPIO_Pin_4)){
@@ -138,6 +183,7 @@ void Game_Page_Ready(void){
 			Finished_Pointer += 1; // next arrow
 		}else{
 			Finished_Pointer = 0;
+			All_Right = 0;
 		}
 	}
 	if(Key_check(GPIOA, GPIO_Pin_5)){
@@ -146,6 +192,7 @@ void Game_Page_Ready(void){
 			Finished_Pointer += 1; // next arrow
 		}else{
 			Finished_Pointer = 0;
+			All_Right = 0;
 		}
 	}
 	
@@ -194,9 +241,10 @@ void Game_Page_Ready(void){
 	OLED_Printf(0, 50, OLED_6X8, "score: %d", Score);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", Combat_Length);
 	// OLED_Printf(60, 50, OLED_6X8, "%d", Finished_Pointer);
-	// OLED_Printf(40, 50, OLED_6X8, "%d", Game_Time);
+	// OLED_Printf(40, 50, OLED_6X8, "%d", next_level_page_remain_time);
 	Show_Time_Bar();
 	
+	// game over
 	if(Game_Time < 0){ // have time to play
 		Game_Ready = 0;
 		
@@ -210,6 +258,29 @@ void Game_Page_Ready(void){
 		Score_Page(Score);
 		Score = 0;
 	}
+	
+	// next level
+	if(Count_Fininshed_Combat >= Count_Next_Level_Combat + level){
+		OLED_Clear();
+		int Game_Time_tmp = Game_Time;
+		Game_Time = GAME_LASTING_TIME;
+		Rand_Num = rand() % COMBAT_STRUCT_LEN;  // to init the next game
+		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
+		Finished_Pointer = 0;
+		Count_Fininshed_Combat = 0;
+		next_level_page(All_Right, Game_Time_tmp, &level, &Score);
+		
+		
+		// Delay_s(3);
+	}
+}
+
+
+void Game_Page_Ready(void){
+	// The game function
+	
+	one_level(level);
+	
 }
 
 
@@ -278,5 +349,13 @@ void TIM2_IRQHandler(void){
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET){
 		Game_Time -= 1;
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	}
+}
+
+
+void TIM3_IRQHandler(void){
+	if (TIM_GetITStatus(TIM3, TIM_IT_Update) == SET){
+		next_level_page_remain_time -= 1;
+		TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 	}
 }
