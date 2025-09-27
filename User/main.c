@@ -12,8 +12,8 @@
 #define MENU_PAGE  ((uint16_t)2)
 #define GAME_PAGE  ((uint16_t)3)
 #define COMBAT_STRUCT_LEN ((int)11)
-	
 #define GAME_LASTING_TIME ((uint16_t)15)
+#define LEVEL_PAGE_REMAIN_TIME ((int)5)
 
 typedef struct {
 	char name[32];
@@ -60,13 +60,12 @@ uint8_t Game_Ready = 0; // sure to play game?
 int Score = 0;  // first in and become 0
 int Game_Time = GAME_LASTING_TIME; // leaving time
 int Rand_Num = 0; // give a new num; give the 500kg first
-	
+
 uint8_t Finished_Pointer = 0; // use to know the input pointer
 uint8_t Combat_Length = 5;  // record the combat_readiness length and not equal to Finished_Pointer
 
-
 uint8_t Count_Fininshed_Combat = 0;
-uint8_t Count_Next_Level_Combat = 7;
+uint8_t Count_Next_Level_Combat = 4;
 uint8_t All_Right = 1;
 uint8_t level = 1;
 
@@ -104,22 +103,23 @@ void Score_Page(int Score){
 }
 
 
-int next_level_page_remain_time = 5; // remain 3s
+int next_level_page_remain_time = LEVEL_PAGE_REMAIN_TIME; // remain 5s
 
 void next_level_page(uint8_t All_Right, int Game_Time, uint8_t * level, int * Score){
+	
 	TIM_Cmd(TIM3, ENABLE);
 	
 	int Addition_Score = 0;
 	while(next_level_page_remain_time > 0){
 		Addition_Score = 0;
 		if(next_level_page_remain_time <= 4){
-			OLED_Printf(0, 0, OLED_6X8, "level %d finished!");
+			OLED_Printf(0, 0, OLED_6X8, "level %d finished!", *level);
 		}
 		
 		if(next_level_page_remain_time <= 3){
 			int Add_Score = 0;
 			if(All_Right == 1){
-				Add_Score = 3 * (int)level;
+				Add_Score = 3 * (*level);
 				Addition_Score += Add_Score; 
 			}
 			OLED_Printf(0, 15, OLED_6X8, "All Right: %d", Add_Score);
@@ -137,14 +137,16 @@ void next_level_page(uint8_t All_Right, int Game_Time, uint8_t * level, int * Sc
 	// finish and to next level
 	TIM_Cmd(TIM3, DISABLE);
 	
-	next_level_page_remain_time = 5;
 	*Score += Addition_Score;
 	*level += 1;
-	
+	// in next level should init next_level_page_remain_time
+	next_level_page_remain_time = LEVEL_PAGE_REMAIN_TIME;
+	All_Right = 1;
+
 }
 
 
-void one_level(uint8_t level){
+void one_level(uint8_t * level){
 	TIM_Cmd(TIM2, ENABLE); // begin to record time
 	
 	// next combat_readiness
@@ -154,9 +156,8 @@ void one_level(uint8_t level){
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
 		Count_Fininshed_Combat += 1; 
-		Game_Time += 1; // give more time
-		// Right_Tag = 0; // begin
-		Delay_us(200);
+		// Game_Time += 1; // give more time
+		Delay_us(500);
 	}
 	
 	if(Key_check(GPIOA, GPIO_Pin_2)){
@@ -250,27 +251,29 @@ void one_level(uint8_t level){
 		
 		OLED_Clear();
 		TIM_Cmd(TIM2,DISABLE);
+		
 		Game_Time = GAME_LASTING_TIME;
 		Rand_Num = rand() % COMBAT_STRUCT_LEN;  // to init the next game
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
-		
+		Count_Fininshed_Combat = 0;
+		*level = 1;
 		Score_Page(Score);
 		Score = 0;
 	}
 	
 	// next level
-	if(Count_Fininshed_Combat >= Count_Next_Level_Combat + level){
+	if(Count_Fininshed_Combat >= Count_Next_Level_Combat + *level){
 		OLED_Clear();
+		TIM_Cmd(TIM2,DISABLE);
+		
 		int Game_Time_tmp = Game_Time;
 		Game_Time = GAME_LASTING_TIME;
 		Rand_Num = rand() % COMBAT_STRUCT_LEN;  // to init the next game
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
 		Count_Fininshed_Combat = 0;
-		next_level_page(All_Right, Game_Time_tmp, &level, &Score);
-		
-		
+		next_level_page(All_Right, Game_Time_tmp, level, &Score);
 		// Delay_s(3);
 	}
 }
@@ -278,8 +281,7 @@ void one_level(uint8_t level){
 
 void Game_Page_Ready(void){
 	// The game function
-	
-	one_level(level);
+	one_level(&level);
 	
 }
 
@@ -341,8 +343,6 @@ int main(void)
 		Indicator_light_init();
 	}
 }
-
-
 
 
 void TIM2_IRQHandler(void){
