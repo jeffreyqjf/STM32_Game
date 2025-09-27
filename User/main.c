@@ -106,12 +106,15 @@ void Game_Page_Ready(void){
 	TIM_Cmd(TIM2,ENABLE); // begin to record time
 	
 	
-	/*
-	if(Right_Tag == 1){ // finish and give a new combat_readiness
-		// add score
-		
+	if(Finished_Pointer == Combat_Length){ // all is right
+		Score += 1; // simple, should improve!!
+		Rand_Num = rand() % COMBAT_STRUCT_LEN; // give a new num
+		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
+		Finished_Pointer = 0;
+		Game_Time += 1; // give more time
+		// Right_Tag = 0; // begin
+		Delay_us(200);
 	}
-	*/
 	
 	if(Key_check(GPIOA, GPIO_Pin_2)){
 	// press A
@@ -145,16 +148,6 @@ void Game_Page_Ready(void){
 			Finished_Pointer = 0;
 		}
 	}
-	
-	if(Finished_Pointer == Combat_Length){ // all is right
-		Score += 1; // simple, should improve!!
-		Rand_Num = rand() % COMBAT_STRUCT_LEN; // give a new num
-		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
-		Finished_Pointer = 0;
-		Game_Time += 1; // give more time
-		// Right_Tag = 0; // begin
-	}
-	
 	
 	// show on OLED
 	OLED_Clear(); // in order to show clean screen
@@ -197,11 +190,11 @@ void Game_Page_Ready(void){
 				break;
 		}
 	}
-	OLED_Printf(0, 50, OLED_6X8, "%d", Rand_Num);
-	OLED_Printf(20, 50, OLED_6X8, "%d", Score);
+	// OLED_Printf(0, 50, OLED_6X8, "%d", Rand_Num);
+	OLED_Printf(0, 50, OLED_6X8, "score: %d", Score);
 	// OLED_Printf(40, 50, OLED_6X8, "%d", Combat_Length);
 	// OLED_Printf(60, 50, OLED_6X8, "%d", Finished_Pointer);
-	OLED_Printf(40, 50, OLED_6X8, "%d", Game_Time);
+	// OLED_Printf(40, 50, OLED_6X8, "%d", Game_Time);
 	Show_Time_Bar();
 	
 	if(Game_Time < 0){ // have time to play
@@ -210,6 +203,9 @@ void Game_Page_Ready(void){
 		OLED_Clear();
 		TIM_Cmd(TIM2,DISABLE);
 		Game_Time = GAME_LASTING_TIME;
+		Rand_Num = rand() % COMBAT_STRUCT_LEN;  // to init the next game
+		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
+		Finished_Pointer = 0;
 		
 		Score_Page(Score);
 		Score = 0;
