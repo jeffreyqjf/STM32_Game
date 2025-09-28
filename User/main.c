@@ -4,6 +4,8 @@
 #include "OLED.h"
 #include "Key.h"
 #include "Timer.h"
+#include "main.h"
+#include "Store.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +13,8 @@
 #define HOME_PAGE  ((uint16_t)1)
 #define MENU_PAGE  ((uint16_t)2)
 #define GAME_PAGE  ((uint16_t)3)
+#define RANK_PAGE  ((uint16_t)4)
+
 #define COMBAT_STRUCT_LEN ((int)11)
 #define GAME_LASTING_TIME ((double)15.0)
 #define LEVEL_PAGE_REMAIN_TIME ((int)5)
@@ -21,9 +25,14 @@ typedef struct {
 }Combat_Readiness_Struct;
 Combat_Readiness_Struct combat_readiness[20];
 
+Rank_Struct rank_struct[16];
+uint16_t rank_array_len = 0;
+
 uint16_t status = HOME_PAGE;
 
 void Data_init(void){
+	// read flash data
+	Store_read_rank_struct();
 	// arrow use w, s, a, d 
 	strcpy(combat_readiness[0].name, "Eagle 500kg Bomb");strcpy(combat_readiness[0].arrow, "WDSSS\0");
 	strcpy(combat_readiness[1].name, "Orbital Gatling Barrage");strcpy(combat_readiness[1].arrow, "DSAWWW\0");
@@ -41,11 +50,23 @@ void Data_init(void){
 
 
 void Home_Page(void){
+	OLED_Clear();
 	OLED_Printf(0, 0, OLED_6X8, "Look familiar?");
 	OLED_Printf(0, 10, OLED_6X8, "You!could!be!next!");
 	
-	if(Button_any_close()){
+
+	OLED_ShowString(0, 45, "Rank", OLED_8X16);
+	OLED_ReverseArea(0, 45, 32 + 1, 61);
+	OLED_ShowString(95, 45, "Game", OLED_8X16);
+	OLED_ReverseArea(95 - 1, 45, 127, 61);
+	
+	if(Key_check(GPIOA, GPIO_Pin_3)){
 		status = GAME_PAGE;
+		OLED_Clear();
+	}
+	
+	if(Key_check(GPIOA, GPIO_Pin_2)){
+		status = RANK_PAGE;
 		OLED_Clear();
 	}
 }
@@ -92,13 +113,20 @@ void Show_Time_Bar(void){
 
 
 void Score_Page(double Score){
+	OLED_Clear();
 	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!");
 	OLED_Printf(25, 20, OLED_8X16, "score: %0.1lf", Score);
 	
 	OLED_ShowString(0, 45, "back", OLED_8X16);
-	OLED_ReverseArea(0, 45, 32, 61);
+	OLED_ReverseArea(0, 45, 32 + 1, 61);
 	OLED_ShowString(85, 45, "again", OLED_8X16);
-	OLED_ReverseArea(85, 45, 127, 61);
+	OLED_ReverseArea(85 - 1, 45, 127, 61);
+	
+	memcpy(&rank_struct[rank_array_len].score, &Score, 8); 
+	// OLED_Printf(100, 20, OLED_8X16, "%0.1lf", rank_struct[rank_array_len].score);
+	strcpy(rank_struct[rank_array_len].name, "ST");
+	rank_array_len += 1;
+	Store_Save_rank_struct();
 	OLED_Update();
 	
 	while(1){
@@ -325,9 +353,16 @@ void Game_Page_Ready(void){
 
 void Game_Page_nReady(void){
 	// The game confirm function 
+	OLED_Clear();
+	
 	OLED_Printf(0, 0, OLED_8X16, "Game Ready?");
-	OLED_Printf(0, 20, OLED_8X16, "Join the");
-	OLED_Printf(0, 40, OLED_8X16, "Helldivers!");
+	OLED_Printf(0, 20, OLED_6X8, "Join the");
+	OLED_Printf(0, 30, OLED_6X8, "Helldivers!");
+	
+	OLED_ShowString(0, 45, "Back", OLED_8X16);
+	OLED_ReverseArea(0, 45, 32 + 1, 61);
+	OLED_ShowString(85, 45, "Ready", OLED_8X16);
+	OLED_ReverseArea(85 - 1, 45, 127, 61);
 	
 	if(Key_check(GPIOA, GPIO_Pin_3)){
 		status = GAME_PAGE;
@@ -354,12 +389,70 @@ void Game_Page(void){
 }
 
 
+uint8_t rank_cursor = 0; // use to select the choice, point at reverse(choose) data
+uint8_t rolling_cursor = 0; // use to show the data, point at first show data
+
+void Rank_Page(void){
+	
+	if((Key_check(GPIOA, GPIO_Pin_5) == 1)){
+		
+		if(rank_cursor < rank_array_len - 1){
+			rank_cursor += 1;
+			if(rank_cursor > rolling_cursor + 3)
+			{
+				rolling_cursor += 1;
+			}
+		}
+		
+		OLED_Clear();
+	}
+	
+	if(Key_check(GPIOA, GPIO_Pin_4) == 1){
+
+		if(rank_cursor > 0){
+			rank_cursor -= 1;
+			if(rank_cursor < rolling_cursor)
+			{
+				rolling_cursor -= 1;
+			}
+		}
+		
+		OLED_Clear();
+	}
+	OLED_Clear();
+	
+	OLED_ShowString(0, 0, "name", OLED_8X16);
+	OLED_ShowString(60, 0, "Score", OLED_8X16);
+	
+	OLED_ShowString(0, 20, rank_struct[0 + rolling_cursor].name, OLED_6X8);
+	OLED_Printf(60, 20, OLED_6X8, "%0.1lf", rank_struct[0 + rolling_cursor].score);
+	OLED_ShowString(0, 30, rank_struct[1 + rolling_cursor].name, OLED_6X8);
+	OLED_Printf(60, 30, OLED_6X8, "%0.1lf", rank_struct[1 + rolling_cursor].score);
+	OLED_ShowString(0, 40, rank_struct[2 + rolling_cursor].name, OLED_6X8);
+	OLED_Printf(60, 40, OLED_6X8, "%0.1lf", rank_struct[2 + rolling_cursor].score);
+	OLED_ShowString(0, 50, rank_struct[3 + rolling_cursor].name, OLED_6X8);
+	OLED_Printf(60, 50, OLED_6X8, "%0.1lf", rank_struct[3 + rolling_cursor].score);
+	
+	OLED_ReverseArea(0, 20 - 1 + (rank_cursor - rolling_cursor) * 10, 127, 10);
+	
+	if(Key_check(GPIOA, GPIO_Pin_2)){
+		status = HOME_PAGE;
+		rank_cursor = 0;
+		rolling_cursor = 0;
+		OLED_Clear();
+	}
+	
+}
+
+
 int main(void)
 {
+	Store_init();
 	OLED_Init();
 	Key_init();
 	Data_init();
 	Timer_init();
+	
 	
 	while(1){
 		switch(status){
@@ -371,6 +464,9 @@ int main(void)
 				break;
 			case GAME_PAGE:
 				Game_Page();
+				break;
+			case RANK_PAGE:
+				Rank_Page();
 				break;
 			default:
 				break;

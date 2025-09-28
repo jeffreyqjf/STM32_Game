@@ -670,6 +670,11 @@
               <FileType>5</FileType>
               <FilePath>.\User\stm32f10x_it.h</FilePath>
             </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\main.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -734,6 +739,26 @@
               <FileName>Timer.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Module\Timer.h</FilePath>
+            </File>
+            <File>
+              <FileName>MyFlash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Module\MyFlash.c</FilePath>
+            </File>
+            <File>
+              <FileName>MyFlash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Module\MyFlash.h</FilePath>
+            </File>
+            <File>
+              <FileName>Store.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Module\Store.c</FilePath>
+            </File>
+            <File>
+              <FileName>Store.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Module\Store.h</FilePath>
             </File>
           </Files>
         </Group>
