@@ -18,6 +18,7 @@
 #define COMBAT_STRUCT_LEN ((int)11)
 #define GAME_LASTING_TIME ((double)15.0)
 #define LEVEL_PAGE_REMAIN_TIME ((int)5)
+#define NAME_LEN ((uint8_t)32)
 
 typedef struct {
 	char name[32];
@@ -112,9 +113,66 @@ void Show_Time_Bar(void){
 }
 
 
-void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len, char* user_name){
+int8_t input_cursor = 0;
+
+char input_char = 'a';
+char input_name_array[NAME_LEN];
+
+void Input_Username(uint8_t Rank, Rank_Struct *rank_struct){
+	// have bugs
+	
+	OLED_Clear();
+	uint8_t exit_flag = 0;
+	
+	while(!exit_flag){
+		if((Key_check(GPIOA, GPIO_Pin_6) == 1)){
+					status = HOME_PAGE;
+					OLED_Clear();
+					exit_flag = 1;
+					break;
+				}
+		
+		OLED_Printf(0, 0, OLED_6X8, "YOU RANK:%d", Rank);
+		OLED_Printf(0, 10, OLED_6X8, "input your name:");
+				
+		// change the char, only support a-z,input 'a' - 1 to stop
+		if((Key_check(GPIOA, GPIO_Pin_5) == 1)){
+			input_char += 1;
+			OLED_ClearArea(10 * input_cursor, 30, 8, 16);
+			}
+		if(Key_check(GPIOA, GPIO_Pin_4) == 1){
+			input_char -= 1;
+			OLED_ClearArea(10 * input_cursor, 30, 8, 16);
+			}
+		if(Key_check(GPIOA, GPIO_Pin_7) == 1){
+			input_name_array[input_cursor] = input_char;
+			input_cursor += 1;
+			if(input_cursor > 0){OLED_ReverseArea(10 * (input_cursor - 1), 30, 8, 16);}				// reverse the front char
+			
+			// finish
+			if(input_char == 'a' - 1){
+				// init again
+				input_cursor = 0;
+				input_char = 'a';
+				strcpy(rank_struct[Rank].name, input_name_array); 
+				strcpy(input_name_array, "\0");
+				status = RANK_PAGE;
+				exit_flag = 1;
+				OLED_Clear();
+				break; 
+			}	
+			input_char = 'a';
+		}
+		OLED_ShowChar(10 * input_cursor, 30, input_char, OLED_8X16);
+		OLED_ReverseArea(10 * input_cursor, 30, 8, 16);
+		OLED_Update();
+	}
+}
+
+void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len){
 	// if rank_array_len < 16, append a user and rank, else, rank and delete the final one
 	// rank 0 - rank 15
+	// if you get a rank ,then you can input your name to record, now it's ST
 	uint8_t MyRank = 16; // the last one
 	for(int i = *rank_array_len - 1; i >= 0; i--)
 	{
@@ -140,7 +198,8 @@ void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len
 			// rank_struct[i].score = rank_struct[i - 1].score;
 		}
 		//insert the new user
-		strcpy(rank_struct[MyRank].name, user_name);
+		Input_Username(MyRank, rank_struct);
+		// strcpy(rank_struct[MyRank].name, user_name);
 		rank_struct[MyRank].score = Score;
 	}
 	
@@ -161,7 +220,7 @@ void Score_Page(double Score){
 	OLED_ShowString(85, 45, "again", OLED_8X16);
 	OLED_ReverseArea(85 - 1, 45, 127, 61);
 	
-	Rank_Score(Score, rank_struct, &rank_array_len, "ST");
+	Rank_Score(Score, rank_struct, &rank_array_len);
 	// here should rank the score
 	// memcpy(&rank_struct[rank_array_len].score, &Score, 8); 
 	// OLED_Printf(100, 20, OLED_8X16, "%0.1lf", rank_struct[rank_array_len].score);
