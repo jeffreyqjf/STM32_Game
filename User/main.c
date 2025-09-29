@@ -112,6 +112,45 @@ void Show_Time_Bar(void){
 }
 
 
+void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len, char* user_name){
+	// if rank_array_len < 16, append a user and rank, else, rank and delete the final one
+	// rank 0 - rank 15
+	uint8_t MyRank = 16; // the last one
+	for(int i = *rank_array_len - 1; i >= 0; i--)
+	{
+		if(Score > rank_struct[i].score)
+		{
+			MyRank = i; // find new score's position
+			break;
+		}
+	}
+	if(*rank_array_len == 0){
+		MyRank = 0;
+	}
+	
+	// OLED_Printf(40, 20, OLED_8X16, "%d", MyRank);
+	
+	if(MyRank <= 15){ 
+		
+		// can have less loop use name_array_len
+		for(int i = 15; i > MyRank; i--)// cpoy and move old user 
+		{
+			rank_struct[i] = rank_struct[i - 1]; 
+			// strcpy(rank_struct[i].name, rank_struct[i - 1].name);
+			// rank_struct[i].score = rank_struct[i - 1].score;
+		}
+		//insert the new user
+		strcpy(rank_struct[MyRank].name, user_name);
+		rank_struct[MyRank].score = Score;
+	}
+	
+	if(*rank_array_len < 15)
+	{
+		*rank_array_len += 1;
+	}
+}
+
+
 void Score_Page(double Score){
 	OLED_Clear();
 	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!");
@@ -122,11 +161,12 @@ void Score_Page(double Score){
 	OLED_ShowString(85, 45, "again", OLED_8X16);
 	OLED_ReverseArea(85 - 1, 45, 127, 61);
 	
+	Rank_Score(Score, rank_struct, &rank_array_len, "ST");
 	// here should rank the score
-	memcpy(&rank_struct[rank_array_len].score, &Score, 8); 
+	// memcpy(&rank_struct[rank_array_len].score, &Score, 8); 
 	// OLED_Printf(100, 20, OLED_8X16, "%0.1lf", rank_struct[rank_array_len].score);
-	strcpy(rank_struct[rank_array_len].name, "ST");
-	rank_array_len += 1;
+	// strcpy(rank_struct[rank_array_len].name, "ST");
+	
 	Store_Save_rank_struct();
 	OLED_Update();
 	
