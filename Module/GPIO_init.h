@@ -5,6 +5,5 @@ void GPIOA_init(GPIOMode_TypeDef GPIO_Mode, uint16_t GPIO_Pin_x);
 void GPIOB_init(GPIOMode_TypeDef GPIO_Mode, uint16_t GPIO_Pin_x);
 void GPIOC_init(GPIOMode_TypeDef GPIO_Mode, uint16_t GPIO_Pin_x);
 void Indicator_light_init(void);
-uint8_t Button_any_close(void);
 
 #endif

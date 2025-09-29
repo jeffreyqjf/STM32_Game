@@ -60,12 +60,12 @@ void Home_Page(void){
 	OLED_ShowString(95, 45, "Game", OLED_8X16);
 	OLED_ReverseArea(95 - 1, 45, 127, 61);
 	
-	if(Key_check(GPIOA, GPIO_Pin_3)){
+	if(Key_check(GPIOB, GPIO_Pin_7)){
 		status = GAME_PAGE;
 		OLED_Clear();
 	}
 	
-	if(Key_check(GPIOA, GPIO_Pin_2)){
+	if(Key_check(GPIOB, GPIO_Pin_6)){
 		status = RANK_PAGE;
 		OLED_Clear();
 	}
@@ -122,6 +122,7 @@ void Score_Page(double Score){
 	OLED_ShowString(85, 45, "again", OLED_8X16);
 	OLED_ReverseArea(85 - 1, 45, 127, 61);
 	
+	// here should rank the score
 	memcpy(&rank_struct[rank_array_len].score, &Score, 8); 
 	// OLED_Printf(100, 20, OLED_8X16, "%0.1lf", rank_struct[rank_array_len].score);
 	strcpy(rank_struct[rank_array_len].name, "ST");
@@ -130,13 +131,13 @@ void Score_Page(double Score){
 	OLED_Update();
 	
 	while(1){
-		if(Key_check(GPIOA, GPIO_Pin_2) == 1){
+		if(Key_check(GPIOB, GPIO_Pin_6) == 1){
 			status = HOME_PAGE;
 			OLED_Clear();
 			break;
 		}
 		
-		if(Key_check(GPIOA, GPIO_Pin_3) == 1){
+		if(Key_check(GPIOB, GPIO_Pin_7) == 1){
 			status = GAME_PAGE;
 			OLED_Clear();
 			break;
@@ -364,14 +365,14 @@ void Game_Page_nReady(void){
 	OLED_ShowString(85, 45, "Ready", OLED_8X16);
 	OLED_ReverseArea(85 - 1, 45, 127, 61);
 	
-	if(Key_check(GPIOA, GPIO_Pin_3)){
+	if(Key_check(GPIOB, GPIO_Pin_7)){
 		status = GAME_PAGE;
 		Game_Ready = 1;
 		Game_Para_Init();
 		OLED_Clear();
 	}
 	
-	if(Key_check(GPIOA, GPIO_Pin_2)){
+	if(Key_check(GPIOB, GPIO_Pin_6)){
 		status = HOME_PAGE;
 		Game_Ready = 0;
 		Game_Para_Init();
@@ -435,7 +436,7 @@ void Rank_Page(void){
 	
 	OLED_ReverseArea(0, 20 - 1 + (rank_cursor - rolling_cursor) * 10, 127, 10);
 	
-	if(Key_check(GPIOA, GPIO_Pin_2)){
+	if(Key_check(GPIOB, GPIO_Pin_6)){
 		status = HOME_PAGE;
 		rank_cursor = 0;
 		rolling_cursor = 0;

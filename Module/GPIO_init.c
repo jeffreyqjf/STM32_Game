@@ -1,5 +1,4 @@
 #include "stm32f10x.h"                  // Device header
-#include "Key.h"
 
 
 void GPIOA_init(GPIOMode_TypeDef GPIO_Mode, uint16_t GPIO_Pin_x){
@@ -39,18 +38,5 @@ void Indicator_light_init(void){
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
 	GPIO_InitStructure.GPIO_Speed =  GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-}
-
-
-uint8_t Button_any_close(void){
-	// if tag is 1, the button close one or more
-	uint8_t tag = 0;
-	if(Key_check(GPIOA, GPIO_Pin_2) == 1){tag = 1;}
-	if(Key_check(GPIOA, GPIO_Pin_3) == 1){tag = 1;}
-	if(Key_check(GPIOA, GPIO_Pin_4) == 1){tag = 1;}
-	if(Key_check(GPIOA, GPIO_Pin_5) == 1){tag = 1;}
-	
-	return tag;
-
 }
 

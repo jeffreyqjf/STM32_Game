@@ -3,5 +3,6 @@
 
 uint8_t Key_check(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void Key_init(void);
+uint8_t Key_any_close(void);
 
 #endif 
