@@ -124,16 +124,16 @@ void Input_Username(uint8_t Rank, Rank_Struct *rank_struct){
 	OLED_Clear();
 	uint8_t exit_flag = 0;
 	
+	OLED_Printf(0, 0, OLED_6X8, "YOU RANK:%d", Rank);
+	OLED_Printf(0, 10, OLED_6X8, "input your name:");
+	
 	while(!exit_flag){
-		if((Key_check(GPIOA, GPIO_Pin_6) == 1)){
+		if((Key_check(GPIOB, GPIO_Pin_6) == 1)){
 					status = HOME_PAGE;
 					OLED_Clear();
 					exit_flag = 1;
 					break;
-				}
-		
-		OLED_Printf(0, 0, OLED_6X8, "YOU RANK:%d", Rank);
-		OLED_Printf(0, 10, OLED_6X8, "input your name:");
+		}
 				
 		// change the char, only support a-z,input 'a' - 1 to stop
 		if((Key_check(GPIOA, GPIO_Pin_5) == 1)){
@@ -144,16 +144,19 @@ void Input_Username(uint8_t Rank, Rank_Struct *rank_struct){
 			input_char -= 1;
 			OLED_ClearArea(10 * input_cursor, 30, 8, 16);
 			}
-		if(Key_check(GPIOA, GPIO_Pin_7) == 1){
+		if(Key_check(GPIOB, GPIO_Pin_7) == 1){
 			input_name_array[input_cursor] = input_char;
 			input_cursor += 1;
 			if(input_cursor > 0){OLED_ReverseArea(10 * (input_cursor - 1), 30, 8, 16);}				// reverse the front char
 			
 			// finish
 			if(input_char == 'a' - 1){
+				
+				input_name_array[input_cursor - 1] = '\0';
 				// init again
 				input_cursor = 0;
 				input_char = 'a';
+				
 				strcpy(rank_struct[Rank].name, input_name_array); 
 				strcpy(input_name_array, "\0");
 				status = RANK_PAGE;
@@ -179,7 +182,6 @@ void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len
 		if(Score > rank_struct[i].score)
 		{
 			MyRank = i; // find new score's position
-			break;
 		}
 	}
 	if(*rank_array_len == 0){
@@ -212,6 +214,11 @@ void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len
 
 void Score_Page(double Score){
 	OLED_Clear();
+	
+	// here should rank the score
+	Rank_Score(Score, rank_struct, &rank_array_len);
+	
+	OLED_Clear();
 	OLED_Printf(30, 0, OLED_8X16, "GAME OVER!");
 	OLED_Printf(25, 20, OLED_8X16, "score: %0.1lf", Score);
 	
@@ -220,8 +227,8 @@ void Score_Page(double Score){
 	OLED_ShowString(85, 45, "again", OLED_8X16);
 	OLED_ReverseArea(85 - 1, 45, 127, 61);
 	
-	Rank_Score(Score, rank_struct, &rank_array_len);
-	// here should rank the score
+	
+	
 	// memcpy(&rank_struct[rank_array_len].score, &Score, 8); 
 	// OLED_Printf(100, 20, OLED_8X16, "%0.1lf", rank_struct[rank_array_len].score);
 	// strcpy(rank_struct[rank_array_len].name, "ST");
