@@ -326,8 +326,8 @@ void one_level(uint8_t * level){
 		Combat_Length = strlen(combat_readiness[Rand_Num].arrow);
 		Finished_Pointer = 0;
 		Count_Fininshed_Combat += 1; 
-		Game_Time += 0.2; // give more time
-		Delay_us(500); // show last arrow is filled
+		Game_Time += 0.5; // give more time
+		Delay_ms(200); // show last arrow is filled
 	}
 	
 	if(Key_check(GPIOA, GPIO_Pin_2)){
@@ -335,8 +335,12 @@ void one_level(uint8_t * level){
 		if(combat_readiness[Rand_Num].arrow[Finished_Pointer] == 'A'){ // press right
 			Finished_Pointer += 1; // next arrow
 		}else{ // not right and back to first arrow
+			OLED_ShowImage(Finished_Pointer * 16, 30, 16, 16, A_wrong);
+			OLED_Update();
+			Delay_ms(200);
 			Finished_Pointer = 0;
 			All_Right = 0;
+			
 		}
 	}
 	if(Key_check(GPIOA, GPIO_Pin_3)){
@@ -344,6 +348,9 @@ void one_level(uint8_t * level){
 		if(combat_readiness[Rand_Num].arrow[Finished_Pointer] == 'D'){ // press right
 			Finished_Pointer += 1; // next arrow
 		}else{
+			OLED_ShowImage(Finished_Pointer * 16, 30, 16, 16, D_wrong);
+			OLED_Update();
+			Delay_ms(200);
 			Finished_Pointer = 0;
 			All_Right = 0;
 		}
@@ -353,6 +360,9 @@ void one_level(uint8_t * level){
 		if(combat_readiness[Rand_Num].arrow[Finished_Pointer] == 'W'){ // press right
 			Finished_Pointer += 1; // next arrow
 		}else{
+			OLED_ShowImage(Finished_Pointer * 16, 30, 16, 16, W_wrong);
+			OLED_Update();
+			Delay_ms(200);
 			Finished_Pointer = 0;
 			All_Right = 0;
 		}
@@ -362,6 +372,9 @@ void one_level(uint8_t * level){
 		if(combat_readiness[Rand_Num].arrow[Finished_Pointer] == 'S'){ // press right
 			Finished_Pointer += 1; // next arrow
 		}else{
+			OLED_ShowImage(Finished_Pointer * 16, 30, 16, 16, S_wrong);
+			OLED_Update();
+			Delay_ms(200);
 			Finished_Pointer = 0;
 			All_Right = 0;
 		}

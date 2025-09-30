@@ -40,6 +40,10 @@ extern const uint8_t W_unfilled[];
 extern const uint8_t D_unfilled[];
 extern const uint8_t S_unfilled[];
 extern const uint8_t A_unfilled[];
+extern const uint8_t W_wrong[];
+extern const uint8_t D_wrong[];
+extern const uint8_t S_wrong[];
+extern const uint8_t A_wrong[];
 /*按照上面的格式，在这个位置加入新的图像数据声明*/
 //...
 
