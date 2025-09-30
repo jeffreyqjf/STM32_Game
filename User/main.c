@@ -26,6 +26,7 @@ typedef struct {
 }Combat_Readiness_Struct;
 Combat_Readiness_Struct combat_readiness[20];
 
+// next time refactor can change 16 to define
 Rank_Struct rank_struct[16];
 uint16_t rank_array_len = 0;
 
@@ -176,7 +177,7 @@ void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len
 	// if rank_array_len < 16, append a user and rank, else, rank and delete the final one
 	// rank 0 - rank 15
 	// if you get a rank ,then you can input your name to record, now it's ST
-	uint8_t MyRank = 16; // the last one
+	uint8_t MyRank = *rank_array_len; // the last one
 	for(int i = *rank_array_len - 1; i >= 0; i--)
 	{
 		if(Score > rank_struct[i].score)
@@ -184,10 +185,12 @@ void Rank_Score(double Score, Rank_Struct *rank_struct, uint16_t *rank_array_len
 			MyRank = i; // find new score's position
 		}
 	}
+	
+	/*
 	if(*rank_array_len == 0){
 		MyRank = 0;
 	}
-	
+	*/
 	// OLED_Printf(40, 20, OLED_8X16, "%d", MyRank);
 	
 	if(MyRank <= 15){ 
