@@ -51,6 +51,18 @@ void Data_init(void){
 }
 
 
+void Animation_Play(void){
+	// play an animation
+	OLED_Clear();
+	uint16_t frame_len = 0;
+	for(int i = 0; i <= frame_len; i++){
+		
+		
+		Delay_ms(16); // 1000 / 60
+	}
+}
+
+
 void Home_Page(void){
 	OLED_Clear();
 	OLED_Printf(0, 0, OLED_6X8, "Look familiar?");
