@@ -53,6 +53,7 @@ void Data_init(void){
 
 void Animation_Play(void){
 	// play an animation
+	/*
 	OLED_Clear();
 	uint16_t frame_len = 0;
 	for(int i = 0; i <= frame_len; i++){
@@ -60,28 +61,57 @@ void Animation_Play(void){
 		
 		Delay_ms(16); // 1000 / 60
 	}
+	*/
+	OLED_Clear();
+	OLED_Printf(13, 0, OLED_8X16, "    Look");
+	OLED_Printf(30, 30, OLED_8X16, "familiar?");
+	OLED_Update();
+	Delay_s(2);
+	OLED_Clear();
+	OLED_Printf(10, 10, OLED_8X16, "You!");
+	OLED_Update();
+	Delay_ms(800);
+	OLED_Printf(64, 10, OLED_8X16, "Could!");
+	OLED_Update();
+	Delay_ms(800);
+	OLED_Printf(10, 40, OLED_8X16, "Be!");
+	OLED_Update();
+	Delay_ms(800);
+	OLED_Printf(64, 40, OLED_8X16, "Next!");
+	OLED_Update();
+	Delay_ms(1200);
+
+	OLED_Clear();
+	
+	
 }
 
 
 void Home_Page(void){
+	
+	Animation_Play();
 	OLED_Clear();
-	OLED_Printf(0, 0, OLED_6X8, "Look familiar?");
-	OLED_Printf(0, 10, OLED_6X8, "You!could!be!next!");
+	OLED_Printf(30, 0, OLED_8X16, "Join the ");
+	OLED_Printf(48, 30, OLED_8X16, "EVA!");
 	
 
 	OLED_ShowString(0, 45, "Rank", OLED_8X16);
 	OLED_ReverseArea(0, 45, 32 + 1, 61);
 	OLED_ShowString(95, 45, "Game", OLED_8X16);
 	OLED_ReverseArea(95 - 1, 45, 127, 61);
-	
-	if(Key_check(GPIOB, GPIO_Pin_7)){
-		status = GAME_PAGE;
-		OLED_Clear();
-	}
-	
-	if(Key_check(GPIOB, GPIO_Pin_6)){
-		status = RANK_PAGE;
-		OLED_Clear();
+	OLED_Update();
+	while(1){
+		if(Key_check(GPIOB, GPIO_Pin_7)){
+			status = GAME_PAGE;
+			OLED_Clear();
+			break;
+		}
+		
+		if(Key_check(GPIOB, GPIO_Pin_6)){
+			status = RANK_PAGE;
+			OLED_Clear();
+			break;
+		}
 	}
 }
 
@@ -137,7 +167,7 @@ void Input_Username(uint8_t Rank, Rank_Struct *rank_struct){
 	OLED_Clear();
 	uint8_t exit_flag = 0;
 	
-	OLED_Printf(0, 0, OLED_6X8, "YOU RANK:%d", Rank);
+	OLED_Printf(0, 0, OLED_6X8, "YOU RANK:%d", Rank + 1);
 	OLED_Printf(0, 10, OLED_6X8, "input your name:");
 	
 	while(!exit_flag){
@@ -492,7 +522,7 @@ void Game_Page_nReady(void){
 	
 	OLED_Printf(0, 0, OLED_8X16, "Game Ready?");
 	OLED_Printf(0, 20, OLED_6X8, "Join the");
-	OLED_Printf(0, 30, OLED_6X8, "Helldivers!");
+	OLED_Printf(0, 30, OLED_6X8, "EVA!");
 	
 	OLED_ShowString(0, 45, "Back", OLED_8X16);
 	OLED_ReverseArea(0, 45, 32 + 1, 61);
