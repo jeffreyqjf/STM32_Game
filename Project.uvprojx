@@ -760,6 +760,16 @@
               <FileType>5</FileType>
               <FilePath>.\Module\Store.h</FilePath>
             </File>
+            <File>
+              <FileName>ADC_Random.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Module\ADC_Random.h</FilePath>
+            </File>
+            <File>
+              <FileName>ADC_Random.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Module\ADC_Random.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

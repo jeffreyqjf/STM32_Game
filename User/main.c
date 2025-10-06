@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "main.h"
 #include "Store.h"
+#include "ADC_Random.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,7 @@ Rank_Struct rank_struct[16];
 uint16_t rank_array_len = 0;
 
 uint16_t status = HOME_PAGE;
+
 
 void Data_init(void){
 	// read flash data
@@ -90,7 +92,6 @@ void Data_init(void){
 	strcpy(combat_readiness[49].name, "macOS");strcpy(combat_readiness[49].arrow, "WASDAW\0");
 	strcpy(combat_readiness[50].name, "Ubuntu");strcpy(combat_readiness[50].arrow, "DAWWDS\0");
 	strcpy(combat_readiness[51].name, "Arch Linux");strcpy(combat_readiness[51].arrow, "WDSAW\0");
-
 }
 
 
@@ -660,6 +661,7 @@ int main(void)
 	Key_init();
 	Data_init();
 	Timer_init();
+	ADC_Random_Init();
 	
 	
 	while(1){
