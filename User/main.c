@@ -15,7 +15,7 @@
 #define GAME_PAGE  ((uint16_t)3)
 #define RANK_PAGE  ((uint16_t)4)
 
-#define COMBAT_STRUCT_LEN ((int)11)
+#define COMBAT_STRUCT_LEN ((int)51)
 #define GAME_LASTING_TIME ((double)15.0)
 #define LEVEL_PAGE_REMAIN_TIME ((int)5)
 #define NAME_LEN ((uint8_t)32)
@@ -24,7 +24,7 @@ typedef struct {
 	char name[32];
 	char arrow[16];
 }Combat_Readiness_Struct;
-Combat_Readiness_Struct combat_readiness[20];
+Combat_Readiness_Struct combat_readiness[60];
 
 // next time refactor can change 16 to define
 Rank_Struct rank_struct[16];
@@ -37,17 +37,60 @@ void Data_init(void){
 	Store_read_rank_struct();
 	// arrow use w, s, a, d 
 	strcpy(combat_readiness[0].name, "Eagle 500kg Bomb");strcpy(combat_readiness[0].arrow, "WDSSS\0");
-	strcpy(combat_readiness[1].name, "Orbital Gatling Barrage");strcpy(combat_readiness[1].arrow, "DSAWWW\0");
-	strcpy(combat_readiness[2].name, "Orbital Airburst Strike");strcpy(combat_readiness[2].arrow, "DDD\0");
-	strcpy(combat_readiness[3].name, "Orbital 120mm HE Barrage");strcpy(combat_readiness[3].arrow, "DDSADS\0");
-	strcpy(combat_readiness[4].name, "Orbital 380mm HE Barrage");strcpy(combat_readiness[4].arrow, "DSWWASS\0");
-	strcpy(combat_readiness[5].name, "Orbital Walking Barrage");strcpy(combat_readiness[5].arrow, "DSDSDS\0");
-	strcpy(combat_readiness[6].name, "Orbital Laser");strcpy(combat_readiness[6].arrow, "DSWDS\0");
-	strcpy(combat_readiness[7].name, "Orbital Napalm Barrage");strcpy(combat_readiness[7].arrow, "DDSADW\0");
-	strcpy(combat_readiness[8].name, "Orbital Railcannon Strike");strcpy(combat_readiness[8].arrow, "DWSSD\0");
-	strcpy(combat_readiness[9].name, "Eagle Strafing Run");strcpy(combat_readiness[9].arrow, "WDD\0");
-	strcpy(combat_readiness[10].name, "Eagle Airstrike");strcpy(combat_readiness[10].arrow, "WDSD\0");
-	strcpy(combat_readiness[11].name, "Eagle Cluster Bomb");strcpy(combat_readiness[11].arrow, "WDSSD\0");
+	strcpy(combat_readiness[1].name, "MBR/GPT");strcpy(combat_readiness[1].arrow, "DSAWWW\0");
+	strcpy(combat_readiness[2].name, "ATX");strcpy(combat_readiness[2].arrow, "DDD\0");
+	strcpy(combat_readiness[3].name, "OLED");strcpy(combat_readiness[3].arrow, "DDSADS\0");
+	strcpy(combat_readiness[4].name, "nvcc");strcpy(combat_readiness[4].arrow, "DSWWASS\0");
+	strcpy(combat_readiness[5].name, "TPM2.0");strcpy(combat_readiness[5].arrow, "DSDSDS\0");
+	strcpy(combat_readiness[6].name, "SAS");strcpy(combat_readiness[6].arrow, "DSWDS\0");
+	strcpy(combat_readiness[7].name, "VT-x");strcpy(combat_readiness[7].arrow, "DDSADW\0");
+	strcpy(combat_readiness[8].name, "BGA");strcpy(combat_readiness[8].arrow, "DWSSD\0");
+	strcpy(combat_readiness[9].name, "Chisel");strcpy(combat_readiness[9].arrow, "WDD\0");
+	strcpy(combat_readiness[10].name, "LPCAMM2");strcpy(combat_readiness[10].arrow, "WDSD\0");
+	strcpy(combat_readiness[11].name, "x86");strcpy(combat_readiness[11].arrow, "WDSSD\0");
+	strcpy(combat_readiness[12].name, "UEFI");strcpy(combat_readiness[12].arrow, "WDSA\0");
+	
+	strcpy(combat_readiness[13].name, "BIOS");strcpy(combat_readiness[13].arrow, "DDSW\0");
+	strcpy(combat_readiness[14].name, "PCIe");strcpy(combat_readiness[14].arrow, "WDDSS\0");
+	strcpy(combat_readiness[15].name, "SATA");strcpy(combat_readiness[15].arrow, "DSAWW\0");
+	strcpy(combat_readiness[16].name, "NVMe");strcpy(combat_readiness[16].arrow, "WSDD\0");
+	strcpy(combat_readiness[17].name, "DDR4");strcpy(combat_readiness[17].arrow, "SDDW\0");
+	strcpy(combat_readiness[18].name, "CUDA");strcpy(combat_readiness[18].arrow, "WASD\0");
+	strcpy(combat_readiness[19].name, "FPGA");strcpy(combat_readiness[19].arrow, "DDSA\0");
+	strcpy(combat_readiness[20].name, "RISC-V");strcpy(combat_readiness[20].arrow, "DWSDD\0");
+	strcpy(combat_readiness[21].name, "ARM");strcpy(combat_readiness[21].arrow, "WDD\0");
+	strcpy(combat_readiness[22].name, "SPI");strcpy(combat_readiness[22].arrow, "SWS\0");
+	strcpy(combat_readiness[23].name, "I2C");strcpy(combat_readiness[23].arrow, "DSD\0");
+	strcpy(combat_readiness[24].name, "UART");strcpy(combat_readiness[24].arrow, "WSSD\0");
+	strcpy(combat_readiness[25].name, "GPU");strcpy(combat_readiness[25].arrow, "WDA\0");
+	strcpy(combat_readiness[26].name, "TPU");strcpy(combat_readiness[26].arrow, "ASDW\0");
+	strcpy(combat_readiness[27].name, "RTOS");strcpy(combat_readiness[27].arrow, "DDSSS\0");
+	strcpy(combat_readiness[28].name, "NVCC");strcpy(combat_readiness[28].arrow, "WSSDD\0");
+	strcpy(combat_readiness[29].name, "RAID");strcpy(combat_readiness[29].arrow, "SDDA\0");
+	strcpy(combat_readiness[30].name, "ECC");strcpy(combat_readiness[30].arrow, "DDS\0");
+	strcpy(combat_readiness[31].name, "SIMD");strcpy(combat_readiness[31].arrow, "WDSDW\0");
+	
+	strcpy(combat_readiness[32].name, "Linux Kernel");strcpy(combat_readiness[32].arrow, "WDSAWW\0");
+	strcpy(combat_readiness[33].name, "Docker");strcpy(combat_readiness[33].arrow, "DDSAWWS\0");
+	strcpy(combat_readiness[34].name, "Kubernetes");strcpy(combat_readiness[34].arrow, "WASDD\0");
+	strcpy(combat_readiness[35].name, "OpenGL");strcpy(combat_readiness[35].arrow, "DWASDWS\0");
+	strcpy(combat_readiness[36].name, "Vulkan");strcpy(combat_readiness[36].arrow, "SDAWWD\0");
+	strcpy(combat_readiness[37].name, "TensorFlow");strcpy(combat_readiness[37].arrow, "WDSAWWD\0");
+	strcpy(combat_readiness[38].name, "PyTorch");strcpy(combat_readiness[38].arrow, "DDWDDS\0");
+	strcpy(combat_readiness[39].name, "LLVM");strcpy(combat_readiness[39].arrow, "SDAWDSS\0");
+	strcpy(combat_readiness[40].name, "GCC");strcpy(combat_readiness[40].arrow, "WDDWD\0");
+	strcpy(combat_readiness[41].name, "Clang");strcpy(combat_readiness[41].arrow, "DDAWWDS\0");
+	strcpy(combat_readiness[42].name, "Rust");strcpy(combat_readiness[42].arrow, "WDDSWW\0");
+	strcpy(combat_readiness[43].name, "Python");strcpy(combat_readiness[43].arrow, "DASDD\0");
+	strcpy(combat_readiness[44].name, "Node.js");strcpy(combat_readiness[44].arrow, "WDDS\0");
+	strcpy(combat_readiness[45].name, "Electron");strcpy(combat_readiness[45].arrow, "WADSAW\0");
+	strcpy(combat_readiness[46].name, "Android");strcpy(combat_readiness[46].arrow, "AWWDD\0");
+	strcpy(combat_readiness[47].name, "iOS SDK");strcpy(combat_readiness[47].arrow, "WAWDDS\0");
+	strcpy(combat_readiness[48].name, "Windows NT");strcpy(combat_readiness[48].arrow, "WDDSA\0");
+	strcpy(combat_readiness[49].name, "macOS");strcpy(combat_readiness[49].arrow, "WASDAW\0");
+	strcpy(combat_readiness[50].name, "Ubuntu");strcpy(combat_readiness[50].arrow, "DAWWDS\0");
+	strcpy(combat_readiness[51].name, "Arch Linux");strcpy(combat_readiness[51].arrow, "WDSAW\0");
+
 }
 
 
